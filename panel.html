@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inventario | Sistema de Inventario</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+  <header class="barra">
+    <h1>Sistema de Inventario</h1>
+    <nav>
+      <a href="panel.html" class="activo">Inventario</a>
+      <a href="ventas.html">Ventas</a>
+      <a href="reportes.html" id="enlaceReportes">Reportes</a>
+    </nav>
+    <div class="usuario">
+      <span id="nombreUsuario"></span>
+      <button class="boton chico gris" onclick="cerrarSesion()">Salir</button>
+    </div>
+  </header>
+
+  <main class="contenido">
+
+    <div id="avisoStock" class="aviso alerta oculto"></div>
+    <div id="aviso" class="aviso exito oculto"></div>
+
+    <div class="fila-tarjetas">
+      <div class="dato"><div class="numero" id="totalProductos">0</div><div class="letra">Productos distintos</div></div>
+      <div class="dato"><div class="numero" id="totalPiezas">0</div><div class="letra">Piezas en almacen</div></div>
+      <div class="dato"><div class="numero" id="valorInventario">$0</div><div class="letra">Valor del inventario</div></div>
+      <div class="dato"><div class="numero" id="totalBajos">0</div><div class="letra">Por reabastecer</div></div>
+    </div>
+
+    <!-- Formulario para agregar o editar -->
+    <div class="tarjeta" id="cajaFormulario" style="display:none">
+      <h3 id="tituloFormulario" style="margin-top:0">Nuevo producto</h3>
+      <form id="formProducto">
+        <input type="hidden" id="idProducto">
+
+        <div class="campo">
+          <label for="nombre">Nombre del producto</label>
+          <input type="text" id="nombre" required maxlength="60">
+        </div>
+
+        <div class="fila-campos">
+          <div class="campo">
+            <label for="categoria">Categoria</label>
+            <input type="text" id="categoria" required maxlength="30" list="categorias">
+            <datalist id="categorias"></datalist>
+          </div>
+          <div class="campo">
+            <label for="precio">Precio ($)</label>
+            <input type="number" id="precio" min="0" step="0.5" required>
+          </div>
+          <div class="campo">
+            <label for="stock">Cantidad</label>
+            <input type="number" id="stock" min="0" required>
+          </div>
+          <div class="campo">
+            <label for="minimo">Minimo antes de alertar</label>
+            <input type="number" id="minimo" min="0" required>
+          </div>
+        </div>
+
+        <div class="acciones">
+          <button type="submit" class="boton verde">Guardar</button>
+          <button type="button" class="boton gris" onclick="ocultarFormulario()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="titulo-seccion">
+      <h2>Inventario</h2>
+      <button class="boton" onclick="mostrarFormulario()">+ Nuevo producto</button>
+    </div>
+
+    <div class="tarjeta">
+      <div class="campo">
+        <input type="search" id="buscador" placeholder="Buscar por nombre o categoria...">
+      </div>
+
+      <div class="tabla-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Categoria</th>
+              <th>Precio</th>
+              <th>Cantidad</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaProductos"></tbody>
+        </table>
+      </div>
+
+      <div id="sinResultados" class="vacio oculto">No se encontraron productos.</div>
+    </div>
+
+  </main>
+
+  <script src="js/datos.js"></script>
+  <script src="js/panel.js"></script>
+</body>
+</html>

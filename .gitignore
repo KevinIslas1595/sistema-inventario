@@ -1,0 +1,11 @@
+# Configuracion con claves (nunca subir)
+js/config.js
+credenciales.json
+
+# Dependencias
+node_modules/
+
+# Basura del sistema
+Thumbs.db
+desktop.ini
+.DS_Store

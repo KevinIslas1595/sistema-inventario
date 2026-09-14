@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ventas | Sistema de Inventario</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+  <header class="barra">
+    <h1>Sistema de Inventario</h1>
+    <nav>
+      <a href="panel.html">Inventario</a>
+      <a href="ventas.html" class="activo">Ventas</a>
+      <a href="reportes.html" id="enlaceReportes">Reportes</a>
+    </nav>
+    <div class="usuario">
+      <span id="nombreUsuario"></span>
+      <button class="boton chico gris" onclick="cerrarSesion()">Salir</button>
+    </div>
+  </header>
+
+  <main class="contenido">
+
+    <div class="titulo-seccion"><h2>Registrar una venta</h2></div>
+
+    <div id="aviso" class="aviso oculto"></div>
+
+    <div class="tarjeta">
+      <form id="formVenta">
+        <div class="fila-campos">
+          <div class="campo">
+            <label for="producto">Producto</label>
+            <select id="producto" required></select>
+          </div>
+          <div class="campo">
+            <label for="cantidad">Cantidad</label>
+            <input type="number" id="cantidad" min="1" value="1" required>
+          </div>
+          <div class="campo">
+            <label>Total a cobrar</label>
+            <input type="text" id="total" value="$0.00" readonly>
+          </div>
+        </div>
+        <button type="submit" class="boton verde">Cobrar y descontar del inventario</button>
+      </form>
+    </div>
+
+    <div class="titulo-seccion"><h2>Ultimas ventas</h2></div>
+
+    <div class="tarjeta">
+      <div class="tabla-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Total</th>
+              <th>Vendio</th>
+            </tr>
+          </thead>
+          <tbody id="tablaVentas"></tbody>
+        </table>
+      </div>
+      <div id="sinVentas" class="vacio oculto">Todavia no hay ventas registradas.</div>
+    </div>
+
+  </main>
+
+  <script src="js/datos.js"></script>
+  <script src="js/ventas.js"></script>
+</body>
+</html>

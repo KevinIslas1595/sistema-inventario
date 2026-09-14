@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reportes | Sistema de Inventario</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+  <header class="barra">
+    <h1>Sistema de Inventario</h1>
+    <nav>
+      <a href="panel.html">Inventario</a>
+      <a href="ventas.html">Ventas</a>
+      <a href="reportes.html" class="activo">Reportes</a>
+    </nav>
+    <div class="usuario">
+      <span id="nombreUsuario"></span>
+      <button class="boton chico gris" onclick="cerrarSesion()">Salir</button>
+    </div>
+  </header>
+
+  <main class="contenido">
+
+    <div class="titulo-seccion"><h2>Reportes de venta</h2></div>
+
+    <div class="fila-tarjetas">
+      <div class="dato"><div class="numero" id="ventasHoy">$0</div><div class="letra">Vendido hoy</div></div>
+      <div class="dato"><div class="numero" id="ventasMes">$0</div><div class="letra">Vendido este mes</div></div>
+      <div class="dato"><div class="numero" id="piezasMes">0</div><div class="letra">Piezas vendidas (mes)</div></div>
+      <div class="dato"><div class="numero" id="ticketPromedio">$0</div><div class="letra">Venta promedio</div></div>
+    </div>
+
+    <div class="tarjeta">
+      <h3 style="margin-top:0">Ventas de los ultimos 7 dias</h3>
+      <div class="grafica" id="grafica"></div>
+    </div>
+
+    <div class="tarjeta">
+      <h3 style="margin-top:0">Productos mas vendidos</h3>
+      <div class="tabla-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Producto</th>
+              <th>Piezas vendidas</th>
+              <th>Dinero generado</th>
+            </tr>
+          </thead>
+          <tbody id="tablaTop"></tbody>
+        </table>
+      </div>
+      <div id="sinDatos" class="vacio oculto">Todavia no hay ventas que reportar.</div>
+    </div>
+
+  </main>
+
+  <script src="js/datos.js"></script>
+  <script src="js/reportes.js"></script>
+</body>
+</html>
