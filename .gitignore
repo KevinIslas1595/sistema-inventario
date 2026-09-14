@@ -2,6 +2,11 @@
 js/config.js
 credenciales.json
 
+# Fotos originales de WhatsApp y lista de costos (la pagina usa las copias
+# ligeras de img/productos)
+imagenes/
+costos de los productos.*
+
 # Dependencias
 node_modules/
 

@@ -21,8 +21,10 @@ function llenarProductos() {
   listarProductos().forEach(p => {
     const opcion = document.createElement("option");
     opcion.value = p.id;
-    opcion.textContent = `${p.nombre} — ${dinero(p.precio)} (quedan ${p.stock})`;
-    opcion.disabled = p.stock === 0;
+    opcion.textContent = tienePrecio(p)
+      ? `${p.nombre} (${p.categoria}) — ${dinero(p.precio)} · quedan ${p.stock}`
+      : `${p.nombre} (${p.categoria}) — sin precio`;
+    opcion.disabled = p.stock === 0 || !tienePrecio(p);
     selectProducto.appendChild(opcion);
   });
 
@@ -35,7 +37,7 @@ function llenarProductos() {
 function calcularTotal() {
   const p = buscarProducto(selectProducto.value);
   const cantidad = Number(campoCantidad.value) || 0;
-  campoTotal.value = p ? dinero(p.precio * cantidad) : "$0.00";
+  campoTotal.value = p && tienePrecio(p) ? dinero(p.precio * cantidad) : "$0.00";
 }
 
 selectProducto.addEventListener("change", calcularTotal);
@@ -70,10 +72,10 @@ function pintarVentas() {
     const fila = document.createElement("tr");
     fila.innerHTML = `
       <td>${fechaCorta(v.fecha)}</td>
-      <td>${v.producto}</td>
+      <td>${escapar(v.producto)}</td>
       <td>${v.cantidad}</td>
       <td>${dinero(v.total)}</td>
-      <td>${v.vendedor}</td>`;
+      <td>${escapar(v.vendedor)}</td>`;
     tabla.appendChild(fila);
   });
 

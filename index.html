@@ -3,43 +3,172 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Entrar | Sistema de Inventario</title>
-  <link rel="stylesheet" href="css/estilos.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍬</text></svg>">
+  <title>Tienda | Gomitas y cacahuates</title>
+  <meta name="description" content="Gomitas Lucky, Dulces Jovy y Cacahuates Sol. Catalogo en linea conectado al inventario.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tienda.css">
 </head>
 <body>
 
-  <div class="pantalla-login">
-    <div class="caja-login">
+  <!-- Barra de anuncio -->
+  <div class="anuncio">Gomitas y cacahuates por mayoreo &middot; Precios en pesos mexicanos</div>
 
-      <h1>Sistema de Inventario</h1>
-      <p class="subtitulo">Punto de venta y control de almacen</p>
+  <!-- Encabezado -->
+  <header class="encabezado">
+    <div class="encabezado-fila">
+      <button class="icono-boton solo-celular" id="abrirMenu" aria-label="Abrir menu">
+        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
 
-      <div id="aviso" class="aviso error oculto"></div>
+      <label class="buscador">
+        <svg viewBox="0 0 24 24" width="18" height="18"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input type="search" id="buscar" placeholder="Buscar dulces..." aria-label="Buscar productos">
+      </label>
 
-      <form id="formLogin">
-        <div class="campo">
-          <label for="correo">Correo</label>
-          <input type="email" id="correo" placeholder="admin@demo.com" required autocomplete="username">
-        </div>
+      <a href="index.html" class="logo" id="logo"></a>
 
-        <div class="campo">
-          <label for="clave">Contrasena</label>
-          <input type="password" id="clave" placeholder="••••••" required autocomplete="current-password">
-        </div>
+      <div class="encabezado-derecha">
+        <a href="login.html" class="enlace-empleados">Acceso empleados</a>
+        <button class="icono-boton carrito-boton" id="abrirCarrito" aria-label="Abrir carrito">
+          <svg viewBox="0 0 24 24" width="24" height="24"><path d="M6 7h12l-1.2 12.1a1 1 0 0 1-1 .9H8.2a1 1 0 0 1-1-.9L6 7Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 7a3 3 0 0 1 6 0" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          <span class="contador oculto" id="contadorCarrito">0</span>
+        </button>
+      </div>
+    </div>
 
-        <button type="submit" class="boton">Entrar</button>
-      </form>
+    <nav class="menu" id="menu">
+      <a href="#todos" data-coleccion="todos">Todos los productos</a>
+      <a href="#gomitas-lucky" data-coleccion="Gomitas Lucky">Gomitas Lucky</a>
+      <a href="#dulces-jovy" data-coleccion="Dulces Jovy">Dulces Jovy</a>
+      <a href="#cacahuates-sol" data-coleccion="Cacahuates Sol">Cacahuates Sol</a>
+      <a href="#enchilados" data-coleccion="Enchilado">Enchilados</a>
+      <a href="#nosotros" class="solo-celular">Nosotros</a>
+      <a href="login.html" class="solo-celular">Acceso empleados</a>
+    </nav>
+  </header>
 
-      <div class="ayuda-demo">
-        <strong>Usuarios de prueba</strong><br>
-        Administrador: <code>admin@demo.com</code> / <code>demo123</code><br>
-        Empleado: <code>empleado@demo.com</code> / <code>demo123</code>
+  <!-- Banner de la coleccion -->
+  <section class="banner" id="banner">
+    <div class="banner-texto">
+      <p class="migas"><a href="#todos" data-coleccion="todos">Inicio</a> / <span id="migaActual">Productos</span></p>
+      <h1 id="tituloColeccion">Todos los productos</h1>
+      <p id="textoColeccion"></p>
+    </div>
+    <div class="banner-fotos" id="bannerFotos" aria-hidden="true"></div>
+  </section>
+
+  <main class="tienda">
+
+    <!-- Filtros -->
+    <aside class="filtros" id="filtros" aria-label="Filtros">
+      <div class="filtros-cabeza">
+        <h2>Filtrar</h2>
+        <button class="icono-boton solo-celular" id="cerrarFiltros" aria-label="Cerrar filtros">&times;</button>
       </div>
 
+      <details open>
+        <summary>Marca</summary>
+        <div class="opciones" id="filtroMarca"></div>
+      </details>
+
+      <details open>
+        <summary>Tipo de antojo</summary>
+        <div class="opciones" id="filtroTipo"></div>
+      </details>
+
+      <details open>
+        <summary>Precio</summary>
+        <div class="rango-precio">
+          <label>Desde<input type="number" id="precioMin" min="0" placeholder="$0"></label>
+          <label>Hasta<input type="number" id="precioMax" min="0" placeholder="$0"></label>
+        </div>
+      </details>
+
+      <details open>
+        <summary>Disponibilidad</summary>
+        <div class="opciones" id="filtroDisponible"></div>
+      </details>
+
+      <button class="boton-texto" id="limpiarFiltros">Quitar filtros</button>
+      <button class="boton-principal solo-celular" id="verResultados">Ver productos</button>
+    </aside>
+
+    <!-- Productos -->
+    <section class="resultados">
+      <div class="barra-resultados">
+        <button class="boton-filtrar solo-celular" id="abrirFiltros">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Filtrar
+        </button>
+        <p id="conteo">0 productos</p>
+        <label class="ordenar">
+          Ordenar por
+          <select id="orden">
+            <option value="relevantes">Más relevantes</option>
+            <option value="precio-menor">Precio: menor a mayor</option>
+            <option value="precio-mayor">Precio: mayor a menor</option>
+            <option value="nombre">Nombre: A a Z</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="rejilla" id="rejilla"></div>
+
+      <div class="sin-resultados oculto" id="sinResultados">
+        <p>No encontramos productos con esos filtros.</p>
+        <button class="boton-principal" id="limpiarFiltros2">Quitar filtros</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Pie de pagina -->
+  <footer class="pie" id="nosotros">
+    <div class="pie-columnas">
+      <div>
+        <p class="logo logo-pie" id="logoPie"></p>
+        <p>Gomitas y cacahuates de las marcas que más se venden, con inventario al día: lo que ves en la tienda es lo que hay en el almacén.</p>
+      </div>
+      <div>
+        <h3>Categorías</h3>
+        <a href="#gomitas-lucky" data-coleccion="Gomitas Lucky">Gomitas Lucky</a>
+        <a href="#dulces-jovy" data-coleccion="Dulces Jovy">Dulces Jovy</a>
+        <a href="#cacahuates-sol" data-coleccion="Cacahuates Sol">Cacahuates Sol</a>
+        <a href="#enchilados" data-coleccion="Enchilado">Enchilados</a>
+      </div>
+      <div>
+        <h3>Para el negocio</h3>
+        <a href="login.html">Acceso empleados</a>
+        <a href="panel.html">Inventario</a>
+        <a href="reportes.html">Reportes de venta</a>
+      </div>
     </div>
-  </div>
+    <p class="pie-final">Proyecto de portafolio de <a href="https://github.com/KevinIslas1595" target="_blank" rel="noopener">Kevin Islas</a> &middot; Las marcas pertenecen a sus dueños.</p>
+  </footer>
+
+  <!-- Carrito -->
+  <div class="cortina oculto" id="cortina"></div>
+
+  <aside class="carrito" id="carrito" aria-label="Carrito" aria-hidden="true">
+    <div class="carrito-cabeza">
+      <h2>Tu carrito</h2>
+      <button class="icono-boton" id="cerrarCarrito" aria-label="Cerrar carrito">&times;</button>
+    </div>
+    <div class="carrito-lista" id="carritoLista"></div>
+    <div class="carrito-pie" id="carritoPie">
+      <div class="carrito-total"><span>Subtotal</span><strong id="carritoTotal">$0.00</strong></div>
+      <div class="aviso-carrito oculto" id="avisoCarrito"></div>
+      <button class="boton-principal" id="finalizar">Finalizar pedido</button>
+      <p class="nota">Al finalizar, las piezas se descuentan del inventario.</p>
+    </div>
+  </aside>
+
+  <div class="toast oculto" id="toast" role="status"></div>
 
   <script src="js/datos.js"></script>
-  <script src="js/login.js"></script>
+  <script src="js/tienda.js"></script>
 </body>
 </html>

@@ -36,11 +36,19 @@ function pintarTabla() {
       ? `<button class="boton chico rojo" onclick="pedirBorrar(${p.id})">Borrar</button>`
       : "";
 
+    const foto = p.imagen
+      ? `<img class="miniatura" src="${escapar(p.imagen)}" alt="">`
+      : `<span class="miniatura sin-foto"></span>`;
+    const precio = tienePrecio(p)
+      ? dinero(p.precio)
+      : '<span class="etiqueta bajo">Por confirmar</span>';
+
     const fila = document.createElement("tr");
     fila.innerHTML = `
-      <td>${p.nombre}</td>
-      <td>${p.categoria}</td>
-      <td>${dinero(p.precio)}</td>
+      <td><div class="con-foto">${foto}<span>${escapar(p.nombre)}</span></div></td>
+      <td>${escapar(p.categoria)}</td>
+      <td>${escapar(p.tipo || "—")}</td>
+      <td>${precio}</td>
       <td>${p.stock}</td>
       <td>${etiqueta}</td>
       <td><div class="acciones">
@@ -58,23 +66,27 @@ function pintarTabla() {
 function pintarResumen() {
   const productos = listarProductos();
   const piezas = productos.reduce((suma, p) => suma + p.stock, 0);
-  const valor  = productos.reduce((suma, p) => suma + p.stock * p.precio, 0);
+  const valor  = productos.reduce((suma, p) => suma + p.stock * (tienePrecio(p) ? p.precio : 0), 0);
   const bajos  = productosBajos();
+  const sinPrecio = productos.filter(p => !tienePrecio(p));
 
   document.getElementById("totalProductos").textContent  = productos.length;
   document.getElementById("totalPiezas").textContent     = piezas;
   document.getElementById("valorInventario").textContent = dinero(valor);
   document.getElementById("totalBajos").textContent      = bajos.length;
 
-  const avisoStock = document.getElementById("avisoStock");
+  const avisos = [];
   if (bajos.length) {
-    avisoStock.innerHTML =
-      "<strong>Hay que resurtir:</strong> " +
-      bajos.map(p => `${p.nombre} (${p.stock})`).join(", ");
-    avisoStock.classList.remove("oculto");
-  } else {
-    avisoStock.classList.add("oculto");
+    avisos.push("<strong>Hay que resurtir:</strong> " +
+      bajos.map(p => `${escapar(p.nombre)} (${p.stock})`).join(", "));
   }
+  if (sinPrecio.length) {
+    avisos.push(`<strong>${sinPrecio.length} productos sin precio</strong> (no se pueden vender): ` +
+      sinPrecio.map(p => escapar(p.nombre)).join(", ") + ". Dale Editar para ponerle precio.");
+  }
+  const avisoStock = document.getElementById("avisoStock");
+  avisoStock.innerHTML = avisos.join("<br><br>");
+  avisoStock.classList.toggle("oculto", avisos.length === 0);
 
   // Sugerencias de categoria en el formulario
   const lista = document.getElementById("categorias");
@@ -107,7 +119,8 @@ function editarProducto(id) {
   document.getElementById("idProducto").value = p.id;
   document.getElementById("nombre").value     = p.nombre;
   document.getElementById("categoria").value  = p.categoria;
-  document.getElementById("precio").value     = p.precio;
+  document.getElementById("tipo").value       = p.tipo || "Dulce";
+  document.getElementById("precio").value     = tienePrecio(p) ? p.precio : "";
   document.getElementById("stock").value      = p.stock;
   document.getElementById("minimo").value     = p.minimo;
 
@@ -125,6 +138,7 @@ formProducto.addEventListener("submit", function (evento) {
     id: id ? Number(id) : null,
     nombre:    document.getElementById("nombre").value.trim(),
     categoria: document.getElementById("categoria").value.trim(),
+    tipo:      document.getElementById("tipo").value,
     precio:    Number(document.getElementById("precio").value),
     stock:     Number(document.getElementById("stock").value),
     minimo:    Number(document.getElementById("minimo").value)

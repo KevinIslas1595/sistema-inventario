@@ -1,27 +1,30 @@
-# Sistema de Inventario y Punto de Venta
+# Tienda en línea + Sistema de Inventario
 
-Sistema web para administrar el inventario de una tienda: registrar productos,
-vender, descontar el stock automaticamente y ver reportes de ventas.
+Tienda web de gomitas y cacahuates (Gomitas Lucky, Dulces Jovy y Cacahuates Sol)
+conectada a un sistema de inventario y punto de venta: lo que el cliente compra
+en la tienda se descuenta del almacén, y el administrador ve las ventas en reportes.
 
-**Ver funcionando:** _(pendiente de publicar)_
+**Ver funcionando:** https://kevinislas1595.github.io/sistema-inventario/
 
 ---
 
 ## Capturas
 
-_(pendiente: agregar imagenes en la carpeta `img/`)_
+| Tienda | Carrito |
+|--------|---------|
+| ![Tienda](img/captura-tienda.jpg) | ![Carrito](img/captura-carrito.jpg) |
 
-| Login | Inventario | Reportes |
-|-------|------------|----------|
-| ![Login](img/captura-login.png) | ![Inventario](img/captura-panel.png) | ![Reportes](img/captura-reportes.png) |
+| Inventario (admin) | En celular |
+|--------------------|------------|
+| ![Inventario](img/captura-panel.jpg) | ![Celular](img/captura-celular.jpg) |
 
 ---
 
 ## Usuario de prueba
 
-Para probar el sistema sin registrarse:
+La tienda es pública. Para entrar al sistema interno usa **Acceso empleados**:
 
-| Rol | Correo | Contrasena |
+| Rol | Correo | Contraseña |
 |-----|--------|------------|
 | Administrador | `admin@demo.com` | `demo123` |
 | Empleado | `empleado@demo.com` | `demo123` |
@@ -30,18 +33,27 @@ El administrador puede borrar productos y ver reportes. El empleado solo vende.
 
 ---
 
-## Que hace
+## Qué hace
 
+**Tienda (para el cliente)**
+- Catálogo con 35 productos, fotos, marca y precio.
+- Colecciones por marca y sección de enchilados.
+- Filtros por marca, tipo de antojo, rango de precio y disponibilidad.
+- Buscador y orden por precio o nombre.
+- Carrito que no deja pedir más piezas de las que hay en el almacén.
+- Al finalizar el pedido, el stock baja solo y la venta aparece en los reportes.
+
+**Sistema interno (para el negocio)**
 - **Login con roles** — administrador y empleado ven cosas distintas.
-- **Inventario completo** — agregar, editar, buscar y borrar productos.
-- **Registro de ventas** — al vender, el stock baja solo.
-- **Alerta de stock bajo** — avisa cuando quedan pocas piezas.
-- **Reportes** — ventas del dia y del mes, con grafica y productos mas vendidos.
-- **Diseno responsivo** — funciona en computadora y en celular.
+- **Inventario** — agregar, editar, buscar y borrar productos.
+- **Punto de venta** — registrar ventas en mostrador.
+- **Alertas** — avisa cuando quedan pocas piezas o falta ponerle precio a un producto.
+- **Reportes** — ventas del día y del mes, gráfica de 7 días y productos más vendidos.
+- **Diseño responsivo** — funciona en computadora y en celular.
 
 ---
 
-## Tecnologias
+## Tecnologías
 
 - HTML5, CSS3 y JavaScript (sin frameworks)
 - Almacenamiento local del navegador (`localStorage`) en el modo demo
@@ -49,7 +61,7 @@ El administrador puede borrar productos y ver reportes. El empleado solo vende.
 
 ---
 
-## Como usarlo en tu computadora
+## Cómo usarlo en tu computadora
 
 1. Descarga o clona el repositorio:
 
@@ -67,33 +79,39 @@ Eso es todo: no necesita instalar nada.
 
 ```
 sistema-inventario/
-├── index.html        Pantalla de inicio de sesion
+├── index.html        Tienda en línea (portada)
+├── login.html        Acceso empleados
 ├── panel.html        Inventario (lista de productos)
-├── ventas.html       Registrar una venta
-├── reportes.html     Graficas y totales
+├── ventas.html       Registrar una venta en mostrador
+├── reportes.html     Gráficas y totales
 ├── css/
-│   └── estilos.css   Todos los estilos
+│   ├── tienda.css    Estilos de la tienda
+│   └── estilos.css   Estilos del sistema interno
 ├── js/
-│   ├── datos.js      Guardar y leer la informacion
-│   ├── login.js      Inicio de sesion
+│   ├── datos.js      Productos, ventas y sesión (la única capa de datos)
+│   ├── tienda.js     Catálogo, filtros y carrito
+│   ├── login.js      Inicio de sesión
 │   ├── panel.js      Inventario
 │   ├── ventas.js     Ventas
 │   └── reportes.js   Reportes
-└── img/              Imagenes y capturas
+└── img/
+    ├── productos/    Fotos de los productos
+    └── captura-*.jpg Capturas para este README
 ```
 
 ---
 
 ## Pendientes / siguientes pasos
 
+- [ ] Ponerle precio a los productos Jovy y Sol
 - [ ] Conectar con Supabase para que los datos se guarden en la nube
-- [ ] Publicar en GitHub Pages
-- [ ] Agregar capturas de pantalla al README
 - [ ] Exportar reportes a Excel
-- [ ] Impresion de ticket de venta
+- [ ] Impresión de ticket de venta
 
 ---
 
 ## Autor
 
 **Kevin Islas** — [GitHub](https://github.com/KevinIslas1595)
+
+*Las marcas y fotos de producto pertenecen a sus respectivos dueños.*

@@ -84,7 +84,7 @@ function pintarTop() {
     const fila = document.createElement("tr");
     fila.innerHTML = `
       <td>${posicion + 1}</td>
-      <td>${nombre}</td>
+      <td>${escapar(nombre)}</td>
       <td>${datos.piezas}</td>
       <td>${dinero(datos.dinero)}</td>`;
     tabla.appendChild(fila);
