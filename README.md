@@ -1,4 +1,4 @@
-# Tienda en línea + Sistema de Inventario
+# Dulcería Premium — Tienda en línea + Sistema de Inventario
 
 Tienda web de gomitas y cacahuates (Gomitas Lucky, Dulces Jovy y Cacahuates Sol)
 conectada a un sistema de inventario y punto de venta: lo que el cliente compra

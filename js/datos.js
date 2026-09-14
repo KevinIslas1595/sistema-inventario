@@ -7,7 +7,7 @@
    ========================================================================= */
 
 /* --- Nombre de la tienda (se muestra en la pagina de venta) -------------- */
-const NOMBRE_TIENDA = "La Dulcería";
+const NOMBRE_TIENDA = "Dulcería Premium";
 
 /* --- Usuarios de prueba -------------------------------------------------- */
 const USUARIOS = [
