@@ -223,6 +223,13 @@ function coleccionDesdeHash() {
 /* ---------- Buscador, precio y orden ------------------------------------- */
 
 $("buscar").addEventListener("input", e => { filtros.texto = e.target.value.trim(); pintarTodo(); });
+// Al darle "Buscar" en el teclado del celular: se cierra el teclado y baja a los resultados
+$("buscar").addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+  $("buscar").blur();
+  $("conteo").scrollIntoView({ behavior: "smooth", block: "center" });
+});
 $("orden").addEventListener("change", e => { filtros.orden = e.target.value; pintarProductos(); });
 
 function leerPrecio(campo) {

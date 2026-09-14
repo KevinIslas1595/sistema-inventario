@@ -739,7 +739,9 @@ button { font-family: inherit; }
   }
 
   .logo { font-size: 1.6rem; text-align: left; }
-  .buscador { display: none; }
+  /* El buscador baja a su propio renglon, a todo lo ancho */
+  .buscador { grid-column: 1 / -1; grid-row: 2; max-width: none; margin-top: 4px; }
+  .buscador input { font-size: 16px; }   /* con menos de 16px el iPhone hace zoom */
   .enlace-empleados { display: none; }
 
   .menu {
