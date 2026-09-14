@@ -649,9 +649,60 @@ button { font-family: inherit; }
 
 .nota { font-size: .8rem; color: var(--texto-suave); text-align: center; margin: 10px 0 0; }
 
-.gracias { text-align: center; padding: 50px 10px; }
-.gracias p { margin: 4px 0; }
+.gracias { text-align: center; padding: 40px 10px; }
+.gracias p { margin: 6px 0; line-height: 1.45; }
 .gracias-titulo { font-family: var(--titulos); font-size: 1.6rem; color: var(--verde); font-weight: 700; }
+
+.gracias .folio {
+  background: var(--rosa-claro);
+  border-radius: 14px;
+  padding: 12px;
+  margin: 14px 0 !important;
+  color: var(--texto-suave);
+}
+.gracias .folio strong {
+  font-family: var(--titulos);
+  font-size: 1.5rem;
+  color: var(--vino);
+  letter-spacing: .03em;
+}
+
+/* ---------- WhatsApp ----------------------------------------------------- */
+
+.boton-verde { background: #1faa55; border-color: #1faa55; }
+.boton-verde:hover { background: #178a45; border-color: #178a45; }
+
+#finalizar,
+.boton-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.boton-whatsapp {
+  margin-top: 16px;
+  background: #1faa55;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 800;
+  padding: 11px 20px;
+  border-radius: 999px;
+}
+.boton-whatsapp:hover { background: #178a45; }
+
+.anuncio a { color: #fff; text-decoration: underline; white-space: nowrap; }
+
+.pie-contacto { margin-top: 16px !important; font-weight: 700; color: #fff; }
+.pie-columnas .enlace-whatsapp {
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 1.1rem;
+  color: #fff;
+}
 
 /* ---------- Mensajito flotante ------------------------------------------- */
 

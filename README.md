@@ -41,7 +41,10 @@ El administrador puede borrar productos y ver reportes. El empleado solo vende.
 - Filtros por marca, tipo de antojo, rango de precio y disponibilidad.
 - Buscador y orden por precio o nombre.
 - Carrito que no deja pedir más piezas de las que hay en el almacén.
-- Al finalizar el pedido, el stock baja solo y la venta aparece en los reportes.
+- **Pedidos por WhatsApp:** al pedir, se le asigna un folio (por ejemplo
+  `DP-260913-4821`), se descuenta del inventario y se abre WhatsApp con el pedido
+  ya escrito (folio, productos y total) para enviarlo al número de la tienda.
+- Cada venta queda ligada a su folio en la pantalla de Ventas y cuenta en los reportes.
 
 **Sistema interno (para el negocio)**
 - **Login con roles** — administrador y empleado ven cosas distintas.

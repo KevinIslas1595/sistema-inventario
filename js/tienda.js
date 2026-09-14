@@ -35,11 +35,20 @@ const filtros = {
 
 let carrito = leerCarrito();   // [{ id, cantidad }]
 
-/* ---------- Logo --------------------------------------------------------- */
+/* ---------- Logo y WhatsApp ---------------------------------------------- */
+
+const ICONO_WHATSAPP = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg>';
 
 $("logo").textContent = NOMBRE_TIENDA;
 $("logoPie").textContent = NOMBRE_TIENDA;
 document.title = NOMBRE_TIENDA + " | Gomitas y cacahuates";
+
+const enlaceContacto = `https://wa.me/${WHATSAPP_TIENDA}`;
+$("anuncioWhatsApp").textContent = WHATSAPP_VISIBLE;
+$("anuncioWhatsApp").href = enlaceContacto;
+$("pieWhatsApp").innerHTML = `${ICONO_WHATSAPP} ${escapar(WHATSAPP_VISIBLE)}`;
+$("pieWhatsApp").href = enlaceContacto;
+$("finalizar").innerHTML = `${ICONO_WHATSAPP} Pedir por WhatsApp`;
 
 /* ---------- Filtros: dibujar las casillas -------------------------------- */
 
@@ -357,27 +366,18 @@ function abrirCarrito() {
   $("carrito").setAttribute("aria-hidden", "false");
 }
 
-/* Finalizar: se registra una venta por producto y baja el stock */
+/* Finalizar: se le asigna folio al pedido, se descuenta del inventario
+   y se abre WhatsApp con el pedido ya escrito para la tienda */
 function finalizarPedido() {
   revisarCarrito();
   if (!carrito.length) { pintarCarrito(); return; }
 
-  // Primero revisar que todo alcance, para no vender la mitad del pedido
-  for (const item of carrito) {
-    const p = buscarProducto(item.id);
-    if (item.cantidad > p.stock) {
-      avisoCarrito(`Solo quedan ${p.stock} piezas de ${p.nombre}.`, "error");
-      return;
-    }
-  }
+  const pedido = registrarPedido(carrito);
+  if (!pedido.ok) { avisoCarrito(pedido.mensaje); return; }
 
-  let total = 0, piezas = 0;
-  for (const item of carrito) {
-    const resultado = registrarVenta(item.id, item.cantidad, "Tienda en línea");
-    if (!resultado.ok) { avisoCarrito(resultado.mensaje, "error"); return; }
-    total += buscarProducto(item.id).precio * item.cantidad;
-    piezas += item.cantidad;
-  }
+  const enlace = enlaceWhatsApp(pedido);
+  // Se abre en el mismo clic para que el navegador no lo bloquee
+  window.open(enlace, "_blank", "noopener");
 
   carrito = [];
   guardarCarrito();
@@ -386,9 +386,13 @@ function finalizarPedido() {
   pintarProductos();
 
   $("carritoLista").innerHTML = `<div class="gracias">
-      <p class="gracias-titulo">¡Gracias por tu pedido!</p>
-      <p>${piezas} ${piezas === 1 ? "pieza" : "piezas"} por ${dinero(total)}.</p>
-      <p>Ya se descontó del inventario.</p>
+      <p class="gracias-titulo">¡Pedido listo!</p>
+      <p class="folio">Tu número de pedido es<br><strong>${escapar(pedido.folio)}</strong></p>
+      <p>${pedido.piezas} ${pedido.piezas === 1 ? "pieza" : "piezas"} por ${dinero(pedido.total)}.</p>
+      <p>Solo falta que <strong>envíes el mensaje</strong> en WhatsApp para confirmarlo.</p>
+      <a class="boton-whatsapp" href="${escapar(enlace)}" target="_blank" rel="noopener">
+        ${ICONO_WHATSAPP} Abrir WhatsApp otra vez
+      </a>
     </div>`;
 }
 

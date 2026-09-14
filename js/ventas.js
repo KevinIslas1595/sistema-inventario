@@ -72,6 +72,7 @@ function pintarVentas() {
     const fila = document.createElement("tr");
     fila.innerHTML = `
       <td>${fechaCorta(v.fecha)}</td>
+      <td>${v.pedido ? `<span class="etiqueta ok">${escapar(v.pedido)}</span>` : "Mostrador"}</td>
       <td>${escapar(v.producto)}</td>
       <td>${v.cantidad}</td>
       <td>${dinero(v.total)}</td>

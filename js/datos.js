@@ -9,6 +9,11 @@
 /* --- Nombre de la tienda (se muestra en la pagina de venta) -------------- */
 const NOMBRE_TIENDA = "Dulcería Premium";
 
+/* --- WhatsApp al que llegan TODOS los pedidos de la tienda --------------- */
+/* 52 = Mexico, luego los 10 digitos. */
+const WHATSAPP_TIENDA = "525621386850";
+const WHATSAPP_VISIBLE = "56 2138 6850";
+
 /* --- Usuarios de prueba -------------------------------------------------- */
 const USUARIOS = [
   { correo: "admin@demo.com",    clave: "demo123", nombre: "Kevin (Admin)", rol: "admin" },
@@ -177,8 +182,9 @@ function tienePrecio(producto) {
   return typeof producto.precio === "number" && producto.precio > 0;
 }
 
-/* vendedor: quien vendio. Si no se pasa, se usa el usuario con sesion. */
-function registrarVenta(idProducto, cantidad, vendedor) {
+/* vendedor: quien vendio. Si no se pasa, se usa el usuario con sesion.
+   pedido: folio del pedido de la tienda (solo para ventas en linea). */
+function registrarVenta(idProducto, cantidad, vendedor, pedido) {
   const producto = buscarProducto(idProducto);
   cantidad = Number(cantidad);
 
@@ -200,7 +206,8 @@ function registrarVenta(idProducto, cantidad, vendedor) {
     cantidad: cantidad,
     total: Math.round(producto.precio * cantidad * 100) / 100,
     fecha: new Date().toISOString(),
-    vendedor: vendedor || (sesionActual() ? sesionActual().nombre : "—")
+    vendedor: vendedor || (sesionActual() ? sesionActual().nombre : "—"),
+    pedido: pedido || null
   });
   escribir("ventas", ventas);
 
@@ -209,6 +216,69 @@ function registrarVenta(idProducto, cantidad, vendedor) {
 
 function listarVentas() {
   return leer("ventas", []);
+}
+
+/* =========================================================================
+   PEDIDOS DE LA TIENDA (por WhatsApp)
+   ========================================================================= */
+
+/* Folio del pedido, por ejemplo DP-260913-4821 (fecha + 4 numeros al azar) */
+function nuevoFolio() {
+  const f = new Date();
+  const dos = n => String(n).padStart(2, "0");
+  const fecha = dos(f.getFullYear() % 100) + dos(f.getMonth() + 1) + dos(f.getDate());
+  const azar = String(Math.floor(Math.random() * 10000)).padStart(4, "0");
+  return `DP-${fecha}-${azar}`;
+}
+
+/* items: [{ id, cantidad }]
+   Revisa TODO antes de descontar, para no vender la mitad de un pedido.
+   Si sale bien, descuenta el inventario, guarda una venta por producto con
+   el mismo folio y regresa el detalle para armar el mensaje de WhatsApp. */
+function registrarPedido(items) {
+  if (!items.length) return { ok: false, mensaje: "El carrito esta vacio." };
+
+  for (const item of items) {
+    const p = buscarProducto(item.id);
+    if (!p)                        return { ok: false, mensaje: "Un producto del carrito ya no existe." };
+    if (!tienePrecio(p))           return { ok: false, mensaje: `${p.nombre} todavia no tiene precio.` };
+    if (item.cantidad > p.stock)   return { ok: false, mensaje: `Solo quedan ${p.stock} piezas de ${p.nombre}.` };
+  }
+
+  const folio = nuevoFolio();
+  const lineas = [];
+
+  for (const item of items) {
+    const p = buscarProducto(item.id);
+    const resultado = registrarVenta(p.id, item.cantidad, "Tienda en línea (WhatsApp)", folio);
+    if (!resultado.ok) return resultado;
+    lineas.push({ nombre: p.nombre, marca: p.categoria, cantidad: item.cantidad, precio: p.precio,
+                  importe: Math.round(p.precio * item.cantidad * 100) / 100 });
+  }
+
+  const total = lineas.reduce((s, l) => s + l.importe, 0);
+  const piezas = lineas.reduce((s, l) => s + l.cantidad, 0);
+  return { ok: true, folio, lineas, total, piezas };
+}
+
+/* Mensaje que le llega a la tienda por WhatsApp */
+function mensajeWhatsApp(pedido) {
+  const renglones = pedido.lineas.map(l =>
+    `• ${l.cantidad} x ${l.nombre} (${l.marca}) — ${dinero(l.importe)}`);
+
+  return [
+    `¡Hola ${NOMBRE_TIENDA}! Quiero hacer este pedido:`,
+    "",
+    `*Pedido: ${pedido.folio}*`,
+    "",
+    ...renglones,
+    "",
+    `*Total: ${dinero(pedido.total)}* (${pedido.piezas} ${pedido.piezas === 1 ? "pieza" : "piezas"})`
+  ].join("\n");
+}
+
+function enlaceWhatsApp(pedido) {
+  return `https://wa.me/${WHATSAPP_TIENDA}?text=${encodeURIComponent(mensajeWhatsApp(pedido))}`;
 }
 
 /* =========================================================================
