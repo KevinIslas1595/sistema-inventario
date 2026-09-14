@@ -2,6 +2,7 @@
 
 const sesion = exigirSesion();
 document.getElementById("nombreUsuario").textContent = sesion.nombre;
+marcarPedidosPendientes();
 
 /* El empleado no entra a reportes */
 if (sesion.rol !== "admin") {

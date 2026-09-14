@@ -366,13 +366,14 @@ function abrirCarrito() {
   $("carrito").setAttribute("aria-hidden", "false");
 }
 
-/* Finalizar: se le asigna folio al pedido, se descuenta del inventario
-   y se abre WhatsApp con el pedido ya escrito para la tienda */
+/* Finalizar: se le asigna folio al pedido (queda pendiente) y se abre
+   WhatsApp con el pedido ya escrito para la tienda. El inventario se
+   descuenta cuando la tienda lo confirma desde el link del mensaje. */
 function finalizarPedido() {
   revisarCarrito();
   if (!carrito.length) { pintarCarrito(); return; }
 
-  const pedido = registrarPedido(carrito);
+  const pedido = crearPedido(carrito);
   if (!pedido.ok) { avisoCarrito(pedido.mensaje); return; }
 
   const enlace = enlaceWhatsApp(pedido);
@@ -389,7 +390,8 @@ function finalizarPedido() {
       <p class="gracias-titulo">¡Pedido listo!</p>
       <p class="folio">Tu número de pedido es<br><strong>${escapar(pedido.folio)}</strong></p>
       <p>${pedido.piezas} ${pedido.piezas === 1 ? "pieza" : "piezas"} por ${dinero(pedido.total)}.</p>
-      <p>Solo falta que <strong>envíes el mensaje</strong> en WhatsApp para confirmarlo.</p>
+      <p>Solo falta que <strong>envíes el mensaje</strong> en WhatsApp.
+         Te responderemos por ahí para confirmar tu pedido.</p>
       <a class="boton-whatsapp" href="${escapar(enlace)}" target="_blank" rel="noopener">
         ${ICONO_WHATSAPP} Abrir WhatsApp otra vez
       </a>

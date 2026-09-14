@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍬</text></svg>">
+  <title>Pedidos | Sistema de Inventario</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+  <header class="barra">
+    <h1>Sistema de Inventario</h1>
+    <nav>
+      <a href="panel.html">Inventario</a>
+      <a href="pedidos.html" class="activo">Pedidos <span class="globo oculto" id="contadorPedidos"></span></a>
+      <a href="ventas.html">Ventas</a>
+      <a href="reportes.html" id="enlaceReportes">Reportes</a>
+      <a href="index.html">Ver tienda</a>
+    </nav>
+    <div class="usuario">
+      <span id="nombreUsuario"></span>
+      <button class="boton chico gris" onclick="cerrarSesion()">Salir</button>
+    </div>
+  </header>
+
+  <main class="contenido">
+
+    <div class="titulo-seccion"><h2>Pedidos por WhatsApp</h2></div>
+
+    <div id="aviso" class="aviso oculto"></div>
+
+    <!-- Pedido que llego por el link del mensaje de WhatsApp -->
+    <div class="tarjeta pedido-nuevo oculto" id="pedidoNuevo"></div>
+
+    <div class="tarjeta">
+      <h3 style="margin-top:0">¿Cómo funciona?</h3>
+      <ol class="pasos">
+        <li>El cliente pide en la tienda y te llega su pedido por WhatsApp con un <strong>folio</strong>.</li>
+        <li>Le respondes al cliente por WhatsApp.</li>
+        <li>Tocas el <strong>link</strong> que viene al final del mensaje y aquí le das <strong>Confirmar</strong>:
+            en ese momento se descuenta del inventario y cuenta como venta.</li>
+      </ol>
+
+      <form id="formPegar" class="pegar">
+        <label for="textoPegado">¿El link no abre? Pega aquí el mensaje de WhatsApp completo</label>
+        <textarea id="textoPegado" rows="3" placeholder="¡Hola Dulcería Premium! Quiero hacer este pedido: ..."></textarea>
+        <button type="submit" class="boton chico">Buscar pedido</button>
+      </form>
+    </div>
+
+    <div class="titulo-seccion"><h2>Todos los pedidos</h2></div>
+
+    <div class="tarjeta">
+      <div class="tabla-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Folio</th>
+              <th>Productos</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaPedidos"></tbody>
+        </table>
+      </div>
+      <div id="sinPedidos" class="vacio oculto">Todavía no hay pedidos. Cuando te llegue uno por WhatsApp, abre su link.</div>
+    </div>
+
+  </main>
+
+  <script src="js/datos.js"></script>
+  <script src="js/pedidos.js"></script>
+</body>
+</html>

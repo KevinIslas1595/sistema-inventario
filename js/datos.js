@@ -100,6 +100,9 @@ function prepararDatos() {
   if (localStorage.getItem("ventas") === null) {
     escribir("ventas", []);
   }
+  if (localStorage.getItem("pedidos") === null) {
+    escribir("pedidos", []);
+  }
 }
 prepararDatos();
 
@@ -128,14 +131,29 @@ function cerrarSesion() {
   window.location.href = "login.html";
 }
 
-/* Se llama al inicio de cada pagina privada: si no hay sesion, te saca */
+/* Se llama al inicio de cada pagina privada: si no hay sesion, te saca.
+   Recuerda a que pagina ibas (por ejemplo el link de un pedido de WhatsApp)
+   para regresarte ahi despues de entrar. */
 function exigirSesion() {
   const sesion = sesionActual();
   if (!sesion) {
+    const pagina = location.pathname.split("/").pop() + location.search;
+    try { sessionStorage.setItem("volverA", pagina); } catch (e) { /* sin sessionStorage */ }
     window.location.href = "login.html";
     return null;
   }
   return sesion;
+}
+
+/* A donde mandar al usuario despues de iniciar sesion */
+function paginaDespuesDeEntrar() {
+  let pagina = null;
+  try {
+    pagina = sessionStorage.getItem("volverA");
+    sessionStorage.removeItem("volverA");
+  } catch (e) { /* sin sessionStorage */ }
+  // Solo paginas de este mismo sitio
+  return pagina && /^[a-z]+\.html(\?[\w\-.=&%]*)?$/i.test(pagina) ? pagina : "panel.html";
 }
 
 /* =========================================================================
@@ -231,11 +249,61 @@ function nuevoFolio() {
   return `DP-${fecha}-${azar}`;
 }
 
-/* items: [{ id, cantidad }]
-   Revisa TODO antes de descontar, para no vender la mitad de un pedido.
-   Si sale bien, descuenta el inventario, guarda una venta por producto con
-   el mismo folio y regresa el detalle para armar el mensaje de WhatsApp. */
-function registrarPedido(items) {
+/* Como funciona un pedido:
+   1. El cliente pide en la tienda: el pedido recibe folio y queda PENDIENTE.
+      Todavia NO se descuenta nada del inventario.
+   2. Se abre WhatsApp con el pedido escrito y un link para la tienda.
+   3. La tienda contesta al cliente y abre el link: ahi lo CONFIRMA y en ese
+      momento se descuenta del inventario y cuenta como venta (o lo cancela). */
+
+const VENDEDOR_WHATSAPP = "Tienda en línea (WhatsApp)";
+
+function listarPedidos() {
+  return leer("pedidos", []);
+}
+
+function buscarPedido(folio) {
+  return listarPedidos().find(p => p.folio === folio) || null;
+}
+
+function pedidosPendientes() {
+  return listarPedidos().filter(p => p.estado === "pendiente");
+}
+
+/* Arma las lineas del pedido con los precios del catalogo */
+function armarLineas(items) {
+  return items.map(item => {
+    const p = buscarProducto(item.id);
+    const cantidad = Number(item.cantidad);
+    return { id: p.id, nombre: p.nombre, marca: p.categoria, cantidad,
+             precio: tienePrecio(p) ? p.precio : null,
+             importe: tienePrecio(p) ? Math.round(p.precio * cantidad * 100) / 100 : 0 };
+  });
+}
+
+function nuevoPedido(folio, lineas) {
+  return {
+    folio,
+    fecha: new Date().toISOString(),
+    lineas,
+    total: Math.round(lineas.reduce((s, l) => s + l.importe, 0) * 100) / 100,
+    piezas: lineas.reduce((s, l) => s + l.cantidad, 0),
+    estado: "pendiente"
+  };
+}
+
+/* Guarda el pedido si no estaba (por folio) y regresa el que quedo guardado */
+function guardarPedido(pedido) {
+  const pedidos = listarPedidos();
+  const existente = pedidos.find(p => p.folio === pedido.folio);
+  if (existente) return existente;
+  pedidos.push(pedido);
+  escribir("pedidos", pedidos);
+  return pedido;
+}
+
+/* Paso 1 — lo llama la tienda al pedir. items: [{ id, cantidad }] */
+function crearPedido(items) {
   if (!items.length) return { ok: false, mensaje: "El carrito esta vacio." };
 
   for (const item of items) {
@@ -245,20 +313,76 @@ function registrarPedido(items) {
     if (item.cantidad > p.stock)   return { ok: false, mensaje: `Solo quedan ${p.stock} piezas de ${p.nombre}.` };
   }
 
-  const folio = nuevoFolio();
-  const lineas = [];
+  const pedido = guardarPedido(nuevoPedido(nuevoFolio(), armarLineas(items)));
+  return { ok: true, ...pedido };
+}
 
-  for (const item of items) {
-    const p = buscarProducto(item.id);
-    const resultado = registrarVenta(p.id, item.cantidad, "Tienda en línea (WhatsApp)", folio);
-    if (!resultado.ok) return resultado;
-    lineas.push({ nombre: p.nombre, marca: p.categoria, cantidad: item.cantidad, precio: p.precio,
-                  importe: Math.round(p.precio * item.cantidad * 100) / 100 });
+/* Link que viaja en el mensaje de WhatsApp, por ejemplo:
+   .../pedidos.html?folio=DP-260913-4821&p=1x3.2x1  (producto 1 x 3 piezas, producto 2 x 1) */
+function enlaceConfirmar(pedido) {
+  const productos = pedido.lineas.map(l => `${l.id}x${l.cantidad}`).join(".");
+  return new URL(`pedidos.html?folio=${pedido.folio}&p=${productos}`, location.href).href;
+}
+
+/* Lee un pedido desde ese link (o desde el mensaje de WhatsApp pegado completo) */
+function leerPedidoDeEnlace(texto) {
+  const partes = String(texto || "").match(/folio=(DP-\d{6}-\d{4})&p=(\d+x\d+(?:\.\d+x\d+)*)/);
+  if (!partes) return { ok: false, mensaje: "No encontré el link del pedido en ese texto." };
+
+  const items = partes[2].split(".").map(par => {
+    const [id, cantidad] = par.split("x").map(Number);
+    return { id, cantidad };
+  });
+  if (items.some(i => !buscarProducto(i.id) || i.cantidad <= 0)) {
+    return { ok: false, mensaje: "El pedido trae un producto que ya no existe en el inventario." };
   }
 
-  const total = lineas.reduce((s, l) => s + l.importe, 0);
-  const piezas = lineas.reduce((s, l) => s + l.cantidad, 0);
-  return { ok: true, folio, lineas, total, piezas };
+  return { ok: true, pedido: nuevoPedido(partes[1], armarLineas(items)) };
+}
+
+/* Paso 3 — la tienda confirma: ahora si se descuenta y cuenta como venta */
+function confirmarPedido(folio) {
+  const pedidos = listarPedidos();
+  const pedido = pedidos.find(p => p.folio === folio);
+
+  if (!pedido)                        return { ok: false, mensaje: "Ese pedido no existe." };
+  if (pedido.estado === "confirmado") return { ok: false, mensaje: `El pedido ${folio} ya estaba confirmado.` };
+  if (pedido.estado === "cancelado")  return { ok: false, mensaje: `El pedido ${folio} está cancelado.` };
+
+  // Revisa TODO antes de descontar, para no vender la mitad de un pedido
+  for (const l of pedido.lineas) {
+    const p = buscarProducto(l.id);
+    if (!p)                     return { ok: false, mensaje: `${l.nombre} ya no existe en el inventario.` };
+    if (!tienePrecio(p))        return { ok: false, mensaje: `${p.nombre} todavia no tiene precio.` };
+    if (l.cantidad > p.stock)   return { ok: false, mensaje: `No alcanza: pide ${l.cantidad} de ${p.nombre} y solo quedan ${p.stock}.` };
+  }
+
+  for (const l of pedido.lineas) {
+    const resultado = registrarVenta(l.id, l.cantidad, VENDEDOR_WHATSAPP, folio);
+    if (!resultado.ok) return resultado;
+  }
+
+  // Se guardan los precios con los que se cobro
+  pedido.lineas = armarLineas(pedido.lineas);
+  pedido.total = Math.round(pedido.lineas.reduce((s, l) => s + l.importe, 0) * 100) / 100;
+  pedido.estado = "confirmado";
+  pedido.confirmado = new Date().toISOString();
+  pedido.confirmadoPor = sesionActual() ? sesionActual().nombre : "—";
+  escribir("pedidos", pedidos);
+
+  return { ok: true, mensaje: `Pedido ${folio} confirmado: se descontaron ${pedido.piezas} piezas del inventario.` };
+}
+
+function cancelarPedido(folio) {
+  const pedidos = listarPedidos();
+  const pedido = pedidos.find(p => p.folio === folio);
+
+  if (!pedido)                        return { ok: false, mensaje: "Ese pedido no existe." };
+  if (pedido.estado !== "pendiente")  return { ok: false, mensaje: `El pedido ${folio} ya no está pendiente.` };
+
+  pedido.estado = "cancelado";
+  escribir("pedidos", pedidos);
+  return { ok: true, mensaje: `Pedido ${folio} cancelado. No se descontó nada del inventario.` };
 }
 
 /* Mensaje que le llega a la tienda por WhatsApp */
@@ -273,7 +397,10 @@ function mensajeWhatsApp(pedido) {
     "",
     ...renglones,
     "",
-    `*Total: ${dinero(pedido.total)}* (${pedido.piezas} ${pedido.piezas === 1 ? "pieza" : "piezas"})`
+    `*Total: ${dinero(pedido.total)}* (${pedido.piezas} ${pedido.piezas === 1 ? "pieza" : "piezas"})`,
+    "",
+    "Link del pedido para la tienda:",
+    enlaceConfirmar(pedido)
   ].join("\n");
 }
 
@@ -287,6 +414,15 @@ function enlaceWhatsApp(pedido) {
 
 function dinero(cantidad) {
   return "$" + Number(cantidad).toFixed(2);
+}
+
+/* Numerito rojo junto a "Pedidos" en el menu del sistema */
+function marcarPedidosPendientes() {
+  const globo = document.getElementById("contadorPedidos");
+  if (!globo) return;
+  const cuantos = pedidosPendientes().length;
+  globo.textContent = cuantos;
+  globo.classList.toggle("oculto", cuantos === 0);
 }
 
 function precioTexto(producto) {

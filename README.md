@@ -42,13 +42,16 @@ El administrador puede borrar productos y ver reportes. El empleado solo vende.
 - Buscador y orden por precio o nombre.
 - Carrito que no deja pedir más piezas de las que hay en el almacén.
 - **Pedidos por WhatsApp:** al pedir, se le asigna un folio (por ejemplo
-  `DP-260913-4821`), se descuenta del inventario y se abre WhatsApp con el pedido
-  ya escrito (folio, productos y total) para enviarlo al número de la tienda.
-- Cada venta queda ligada a su folio en la pantalla de Ventas y cuenta en los reportes.
+  `DP-260913-4821`) y se abre WhatsApp con el pedido ya escrito (folio, productos,
+  total y un link para la tienda) para enviarlo al número de la tienda.
+- **El inventario se descuenta al confirmar:** la tienda responde al cliente, abre
+  el link del mensaje y confirma el pedido. Hasta ese momento se descuenta del
+  almacén y cuenta como venta ligada a su folio. También se puede cancelar.
 
 **Sistema interno (para el negocio)**
 - **Login con roles** — administrador y empleado ven cosas distintas.
 - **Inventario** — agregar, editar, buscar y borrar productos.
+- **Pedidos** — pedidos de WhatsApp pendientes, confirmados y cancelados.
 - **Punto de venta** — registrar ventas en mostrador.
 - **Alertas** — avisa cuando quedan pocas piezas o falta ponerle precio a un producto.
 - **Reportes** — ventas del día y del mes, gráfica de 7 días y productos más vendidos.
@@ -85,6 +88,7 @@ sistema-inventario/
 ├── index.html        Tienda en línea (portada)
 ├── login.html        Acceso empleados
 ├── panel.html        Inventario (lista de productos)
+├── pedidos.html      Confirmar pedidos de WhatsApp
 ├── ventas.html       Registrar una venta en mostrador
 ├── reportes.html     Gráficas y totales
 ├── css/
@@ -95,6 +99,7 @@ sistema-inventario/
 │   ├── tienda.js     Catálogo, filtros y carrito
 │   ├── login.js      Inicio de sesión
 │   ├── panel.js      Inventario
+│   ├── pedidos.js    Pedidos por WhatsApp
 │   ├── ventas.js     Ventas
 │   └── reportes.js   Reportes
 └── img/

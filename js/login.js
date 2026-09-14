@@ -1,8 +1,9 @@
 /* login.js — pantalla de inicio de sesion */
 
 // Si ya habia sesion abierta, se va derecho al inventario
+// (o a la pagina a la que iba, por ejemplo el link de un pedido)
 if (sesionActual()) {
-  window.location.href = "panel.html";
+  window.location.href = paginaDespuesDeEntrar();
 }
 
 const formLogin = document.getElementById("formLogin");
@@ -17,7 +18,7 @@ formLogin.addEventListener("submit", function (evento) {
   const sesion = iniciarSesion(correo, clave);
 
   if (sesion) {
-    window.location.href = "panel.html";
+    window.location.href = paginaDespuesDeEntrar();
   } else {
     aviso.textContent = "Correo o contrasena incorrectos.";
     aviso.classList.remove("oculto");

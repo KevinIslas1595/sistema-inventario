@@ -2,6 +2,7 @@
 
 const sesion = exigirSesion();
 document.getElementById("nombreUsuario").textContent = sesion.nombre;
+marcarPedidosPendientes();
 
 if (sesion.rol !== "admin") {
   document.getElementById("enlaceReportes").style.display = "none";
